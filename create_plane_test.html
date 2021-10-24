@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<style type="text/css">
+			.container{
+			    position: relative;
+			    margin: 0;
+			    /*padding: 0;*/
+			    width: 400px;
+			    height: 600px;
+			    background: url(img/background.png) repeat-y;
+				animation:background-move 10s  linear infinite;
+			}
+			@-webkit-keyframes background-move{
+				from{background-position: 0 0;}
+				to{background-position: 0 850px;}
+			}
+			.plane{
+			    position: absolute;
+			    left: 0;
+			    top:0;
+			    width: 100px;
+			    height: 122px;
+			    border: 0px solid #f0f; 
+			}
+			.hero {
+				width: 100px;
+				height: 122px;
+			}
+			.enemy1{
+				width: 51px;
+				height: 39px;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			
+		</div>
+		<script type="text/javascript">
+			container = document.querySelector(".container")
+			// function createPlane(){
+			// 	myplane = document.createElement("div")
+			// 	myplane.style.top=0
+			// 	myplane.style.left=0
+			// 	myplane.className="plane"
+			// 	container.appendChild(myplane)
+			// }
+			// myplane =createPlane()
+			function createPlane(){
+				plane = document.createElement("div")
+				container.appendChild(plane)
+				img = document.createElement("img")
+				plane.appendChild(img)
+				plane.style.top=0
+				plane.style.left=0
+				plane.image=img
+				return plane
+			}
+			function Plane(){
+				var myPlane = {
+						plane:createPlane(),
+						image_files:["hero1.png","hero2.png","hero_blowup_n1.png","hero_blowup_n2.png","hero_blowup_n3.png","hero_blowup_n4.png"],
+						images:[],
+						first_frame:0,
+						last_frame:5,
+						current_frame:0,
+						load:function(){
+									for (i=0;i<this.image_files.length-1;i++){
+									//预加载图片 
+									   this.images[i] = new Image()
+									   this.images[i].src = "img/hero/"+this.image_files[i]
+									}
+									this.plane.image.src = this.images[this.current_frame].src
+									
+								},
+								
+						movies:function(){
+					
+							this.current_frame += 1
+							if (this.current_frame > this.last_frame){
+								this.current_frame = 0
+							}
+							this.plane.image.src = this.images[this.current_frame].src
+						
+						}
+					}
+					return myPlane
+			}
+			
+			function init(){
+				myplane = Plane()
+				myplane.load()
+			}
+			
+			function run(){
+				myplane.movies()
+			}
+			
+			init()
+			setInterval(run, 50)
+			  
+		</script>
+	</body>
+</html>
