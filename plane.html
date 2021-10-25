@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			.container{
+				position:relative;
+				margin:0;
+				width:400px;
+				height:600px;
+				background:url(img/background.png) repeat-y;
+				animation: background-move 10s linear infinite;
+				overflow:hidden;		
+			}
+			@-webkit-keyframes background-move{
+				from {background-position: 0 0;}
+				to {background-position:0 852px}
+				
+			}
+			.plane{
+			    position: absolute;
+			    left: 0;
+			    top:0;
+			    border: 0px solid #f0f;	    
+			}
+			.hero {
+				width: 100px;
+				height: 122px;
+			}
+			.enemy1{
+				width: 51px;
+				height: 39px;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			
+		</div>
+		<script type="text/javascript">
+			container =document.querySelector(".container")
+			enemy1_array =[]
+			enemy1_count =3
+			// create general plane function:
+			function Sprite(){
+				this.init=function(){
+					div =document.createElement("div")
+					container.appendChild(div)
+					img = document.createElement("img")
+					div.image=img
+					div.appendChild(img);
+					this.div=div
+					div = null
+					this.div.style.left = init_data.x+"px"
+					this.div.style.right = init_data+"px"
+					this.div.className = init_data.className
+					this.path =init_data.path
+					this.image_files = init_data.image_files
+					this.first_frame = init_data.first_frame
+					this.last_frame = init_data.last_frame
+					this.current_frame = init_data.current_frame
+					this.speed = init_data.speed
+					this.images = []
+					this.load()
+				}
+				this.load = function(){
+					for (i=0;i<this.image_files.length-1;i++){
+					   this.images[i] = new Image()
+					   this.images[i].src = this.path+this.image_files[i]
+					}
+					
+					this.div.image.src = this.images[this.current_frame].src
+				},
+				this.movies=function(){
+					this.current_frame+=1
+					if(this.current_frame>this.last_frame){
+						this.current_frame=0
+					}
+					this.div.image.src = this.images[this.current_frame].src
+					
+				}
+			}
+			function HeroPlane(){
+				init_data = {
+					x:300,
+					y:300,
+					className:"plane hero",
+					path:"img/hero/",
+					image_files:["hero1.png","hero2.png","hero_blowup_n1.png","hero_blowup_n2.png","hero_blowup_n3.png","hero_blowup_n4.png"],
+					first_frame:0,
+					last_frame:1,
+					current_frame:0
+				}
+				HeroPlane.prototype.constructor.call(this,init_data)
+				this.init()
+			}
+			HeroPlane.prototype = new Sprite()
+			HeroPlane.prototype.fly = function(){
+			
+					this.div.style.top = this.div.offsetTop + this.speed + "px"		
+					this.div.style.left = this.div.offsetLeft + +"px"
+			
+			}
+			function Enemy1Plane(x,y){
+				init_data = {
+					x:x,
+					y:y, 
+					className:"plane enemy1",
+					path : "img/enemy1/",
+					image_files : ["enemy1.png","enemy1_down1.png","enemy1_down2.png","enemy1_down3.png","enemy1_down4.png"],
+					first_frame : 0,
+					last_frame : 0,
+					current_frame : 0,
+					speed : 5
+				}
+				Enemy1Plane.prototype.constructor.call(this, init_data)
+				this.init()
+			}
+			Enemy1Plane.prototype = new Sprite()
+			Enemy1Plane.prototype.fly = function(){
+			        console.log(this.div.offsetTop , this.speed )
+					this.div.style.top = (this.div.offsetTop + this.speed )+ "px"		
+				    if (this.div.offsetTop > container.clientHeight){
+						this.div.style.top = "-20px"
+					}
+			}
+			function init(){
+				// create a hero plane
+				myplane = new HeroPlane()
+				for (var i=0;i<enemy1_count;i++){
+					x=getRand(50,400)
+					y = getRand(0, 100)-100
+					enemy1_array[i] = new Enemy1Plane(x,y)
+				}
+			}
+			function run(){
+				myplane.movies()
+				enemy1_array.forEach(function(obj){
+					obj.movies()
+					obj.fly()
+					})
+				setTimeout(run,30)
+			}
+			
+			init()
+			run()
+			/* 
+			setInterval(run, 30)
+			 */
+			/* 
+			 通过Math对象生成随机数，将生成的敌机随机分布在画面中
+			 */
+			function getRand(min, max){
+				return Math.round((max-min)*Math.random())
+			}  
+		</script>
+	</body>
+</html>
