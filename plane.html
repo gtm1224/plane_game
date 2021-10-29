@@ -10,7 +10,7 @@
 				width:400px;
 				height:600px;
 				background:url(img/background.png) repeat-y;
-				animation: background-move 10s linear infinite;
+				animation: background-move 10s linear infinite; */
 				overflow:hidden;		
 			}
 			@-webkit-keyframes background-move{
@@ -91,17 +91,29 @@
 					image_files:["hero1.png","hero2.png","hero_blowup_n1.png","hero_blowup_n2.png","hero_blowup_n3.png","hero_blowup_n4.png"],
 					first_frame:0,
 					last_frame:1,
-					current_frame:0
+					current_frame:0,
+					speed:20
 				}
 				HeroPlane.prototype.constructor.call(this,init_data)
 				this.init()
+				this.load()
 			}
 			HeroPlane.prototype = new Sprite()
 			HeroPlane.prototype.fly = function(){
-			
-					this.div.style.top = this.div.offsetTop + this.speed + "px"		
-					this.div.style.left = this.div.offsetLeft + +"px"
-			
+				plane = this.div
+				if (this.key == "ArrowLeft"){
+					 plane.style.left =( plane.offsetLeft - this.speed) +"px"
+				}
+				if (this.key == "ArrowRight"){
+					 plane.style.left = ( plane.offsetLeft + this.speed) + "px"
+				}
+				if (this.key == "ArrowUp"){
+					 plane.style.top = ( plane.offsetTop - this.speed) + "px"
+				}
+				if (this.key == "ArrowDown"){
+					 plane.style.top = ( plane.offsetTop + this.speed) + "px"
+				}
+				
 			}
 			function Enemy1Plane(x,y){
 				init_data = {
@@ -137,24 +149,64 @@
 			}
 			function run(){
 				myplane.movies()
-				enemy1_array.forEach(function(obj){
-					obj.movies()
-					obj.fly()
-					})
 				setTimeout(run,30)
 			}
 			
 			init()
-			run()
+			setTimeout(run, 30)
+			setInterval(function(){
+				myplane.fly()
+				enemy1_array.forEach(function(obj){
+					obj.movies()
+					obj.fly()
+					if(isConflict(obj,myplane)){
+						console.log("conflict")
+					}
+				})
+			},30)
+			
 			/* 
 			setInterval(run, 30)
-			 */
+			
 			/* 
 			 通过Math对象生成随机数，将生成的敌机随机分布在画面中
 			 */
 			function getRand(min, max){
 				return Math.round((max-min)*Math.random())
-			}  
+			}
+			
+			function isConflict(obj1, obj2){
+				// obj1在obj2的左上角原点左侧
+				rect1 = obj1.div
+				rect2 = obj2.div
+				x_conflict_left = rect2.offsetLeft - rect1.offsetLeft <= rect1.offsetWidth  ? true : false,
+				
+				// obj1在obj2的左上角原点右侧
+				x_conflict_right = rect1.offsetLeft - rect2.offsetLeft <= rect2.offsetWidth  ? true : false,
+				
+				// obj1在obj2的左上角原点上方
+				y_conflict_top = rect2.offsetTop - rect1.offsetTop <= rect1.offsetHeight
+				
+				// obj1在obj2的左上角原点下方
+				y_conflict_bottom = rect1.offsetTop - rect2.offsetTop <= rect2.offsetHeight
+				console.log(x_conflict_left , x_conflict_right,y_conflict_top , y_conflict_bottom)
+				return (x_conflict_left || x_conflict_right) && (y_conflict_top || y_conflict_bottom)
+			}
+			
+			window.onload=function(){
+				document.onkeydown = function(event){
+				  if (event.key in {ArrowLeft:1,ArrowRight:1,ArrowUp:1,ArrowDown:1}){
+						myplane.key=event.key
+				  }
+				}
+				document.onkeyup=function(event){
+				  console.log("key:"+event.key)
+				  if (event.key in {ArrowLeft:1,ArrowRight:1,ArrowUp:1,ArrowDown:1}){
+						myplane.key=""
+				  }
+				}
+			}
+			
 		</script>
 	</body>
 </html>
