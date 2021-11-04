@@ -32,6 +32,10 @@
 				width: 51px;
 				height: 39px;
 			}
+			.bullet {
+				width: 9px;
+				height: 21px;
+			}
 			
 		</style>
 	</head>
@@ -44,62 +48,104 @@
 			enemy1_array =[]
 			enemy1_count =3
 			// create general plane function:
-			function Sprite(){
-				this.init=function(){
-					div =document.createElement("div")
-					container.appendChild(div)
-					img = document.createElement("img")
-					div.image=img
-					div.appendChild(img);
-					this.div=div
-					div = null
-					this.div.style.left = init_data.x+"px"
-					this.div.style.right = init_data+"px"
-					this.div.className = init_data.className
-					this.path =init_data.path
-					this.image_files = init_data.image_files
-					this.first_frame = init_data.first_frame
-					this.last_frame = init_data.last_frame
-					this.current_frame = init_data.current_frame
-					this.speed = init_data.speed
-					this.images = []
-					this.load()
+			function Sprite(){}
+			Sprite.prototype.init = function(){
+				// console.log(init_data)
+				div = document.createElement("div")
+				container.appendChild(div)
+				img = document.createElement("img")
+				div.image = img 
+				div.appendChild(img);
+				this.div = div
+				div = null
+				this.div.style.left = init_data.x + "px"
+				this.div.style.top  = init_data.y + "px"
+				this.div.className  = init_data.className
+				this.path = init_data.path
+				this.image_files = init_data.image_files
+				this.first_frame = init_data.first_frame
+				this.last_frame = init_data.last_frame
+				this.current_frame = init_data.current_frame
+				this.speed = init_data.speed
+				this.images = []
+				this.life = init_data.life
+				this.dead = false
+				this.remove = function(){
+					this.div.remove()
 				}
 				this.load = function(){
-					for (i=0;i<this.image_files.length-1;i++){
-					   this.images[i] = new Image()
-					   this.images[i].src = this.path+this.image_files[i]
+					// console.log(this.image_files)
+							for (i=0;i<this.image_files.length-1;i++){
+							   this.images[i] = new Image()
+							   this.images[i].src = this.path+this.image_files[i]
+							}
+							
+							this.div.image.src = this.images[this.current_frame].src
+							
+						},
+						
+				this.movies = function(){
+				    // console.log(this)
+					if (this.life<=0){
+						this.last_frame = this.images.length-1
+					}
+					if (this.life<=0 && this.current_frame >= this.last_frame){
+						this.dead = true
+					}
+					this.current_frame += 1
+					if (this.current_frame > this.last_frame){
+						this.current_frame = 0
 					}
 					
 					this.div.image.src = this.images[this.current_frame].src
-				},
-				this.movies=function(){
-					this.current_frame+=1
-					if(this.current_frame>this.last_frame){
-						this.current_frame=0
-					}
-					this.div.image.src = this.images[this.current_frame].src
 					
+				
 				}
 			}
-			function HeroPlane(){
+			
+			
+			//子弹构造函数
+			function Bullet(x,y){
 				init_data = {
-					x:300,
-					y:300,
-					className:"plane hero",
-					path:"img/hero/",
-					image_files:["hero1.png","hero2.png","hero_blowup_n1.png","hero_blowup_n2.png","hero_blowup_n3.png","hero_blowup_n4.png"],
-					first_frame:0,
-					last_frame:1,
-					current_frame:0,
-					speed:20
+					x: x,
+					y: y, 
+					className:"plane bullet",
+					path : "image/bullet/",
+					image_files : ["bullet1.png","bullet2.png"],
+					first_frame : 0,
+					last_frame : 1,
+					current_frame : 0,
+					speed : 10,
+					life: 1,
+					dead: false
 				}
-				HeroPlane.prototype.constructor.call(this,init_data)
 				this.init()
 				this.load()
+			} 
+			
+			function HeroPlane(){
+				 init_data = {
+					x:300, 
+					y:300, 
+					className:"plane hero",
+					path : "img/hero/",
+					image_files : ["hero1.png","hero2.png","hero_blowup_n1.png","hero_blowup_n2.png","hero_blowup_n3.png","hero_blowup_n4.png"],
+					first_frame : 0,
+					last_frame : 1,
+					current_frame : 0,
+					speed : 20,
+					life: 10,
+					dead:false
+					}
+				HeroPlane.prototype.constructor.call(this,init_data)
+			    this.init()
+				this.load()
+						
+				
 			}
 			HeroPlane.prototype = new Sprite()
 			HeroPlane.prototype.fly = function(){
+				this.movies()
 				plane = this.div
 				if (this.key == "ArrowLeft"){
 					 plane.style.left =( plane.offsetLeft - this.speed) +"px"
@@ -125,18 +171,30 @@
 					first_frame : 0,
 					last_frame : 0,
 					current_frame : 0,
-					speed : 5
+					speed : 5,
+					life: 1,
+					dead: false
 				}
 				Enemy1Plane.prototype.constructor.call(this, init_data)
 				this.init()
+				this.load()
 			}
 			Enemy1Plane.prototype = new Sprite()
 			Enemy1Plane.prototype.fly = function(){
-			        console.log(this.div.offsetTop , this.speed )
+					this.movies()
 					this.div.style.top = (this.div.offsetTop + this.speed )+ "px"		
 				    if (this.div.offsetTop > container.clientHeight){
 						this.div.style.top = "-20px"
 					}
+			}
+			function shot(){
+			
+				bullet = new Bullet(myplane.div.offsetLeft+myplane.div.offsetWidth/2,
+				                    myplane.div.offsetTop
+				                   )
+			 
+				bullet_array.push(bullet)
+				
 			}
 			function init(){
 				// create a hero plane
@@ -148,22 +206,45 @@
 				}
 			}
 			function run(){
-				myplane.movies()
+				
+				if (myplane.dead){
+					myplane.remove()
+					myplane = null
+				}
+				
+				for (i=0;i<enemy1_count; i++){
+					if (enemy1_array[i].dead){
+						enemy1_array[i].remove()
+						enemy1_array[i] = null
+						enemy1_array[i] = new Enemy1Plane(x,y)
+					}
+				}
+				
+				if (myplane == null){
+					myplane = new HeroPlane()
+				}
+				
+			
+				myplane.fly()
+				
+				enemy1_array.forEach(function(obj){
+					obj.fly()
+					if (obj.dead){
+						obj.remove()
+					}
+					if (isConflict(obj, myplane)){
+						// console.log("conflict")
+						obj.life -= 1
+						myplane.life -= 1
+					}
+					})
 				setTimeout(run,30)
+				
 			}
 			
 			init()
-			setTimeout(run, 30)
-			setInterval(function(){
-				myplane.fly()
-				enemy1_array.forEach(function(obj){
-					obj.movies()
-					obj.fly()
-					if(isConflict(obj,myplane)){
-						console.log("conflict")
-					}
-				})
-			},30)
+			run()
+			
 			
 			/* 
 			setInterval(run, 30)
@@ -175,28 +256,43 @@
 				return Math.round((max-min)*Math.random())
 			}
 			
+			function getRand(min, max){
+				return Math.round((max-min)*Math.random())
+			}
+			
 			function isConflict(obj1, obj2){
-				// obj1在obj2的左上角原点左侧
+				
 				rect1 = obj1.div
 				rect2 = obj2.div
-				x_conflict_left = rect2.offsetLeft - rect1.offsetLeft <= rect1.offsetWidth  ? true : false,
+				if (rect2.offsetLeft >= rect1.offsetLeft){
+					// obj1在obj2的左上角原点左侧
+					x_conflict = rect2.offsetLeft - rect1.offsetLeft <= rect1.offsetWidth  ? true : false
+				} else {
+					// obj1在obj2的左上角原点右侧
+					x_conflict = rect1.offsetLeft - rect2.offsetLeft <= rect2.offsetWidth  ? true : false
+					
+				}
 				
-				// obj1在obj2的左上角原点右侧
-				x_conflict_right = rect1.offsetLeft - rect2.offsetLeft <= rect2.offsetWidth  ? true : false,
 				
-				// obj1在obj2的左上角原点上方
-				y_conflict_top = rect2.offsetTop - rect1.offsetTop <= rect1.offsetHeight
+				if (rect2.offsetTop - rect1.offsetTop){	
+					// obj1在obj2的左上角原点上方
+					y_conflict = rect2.offsetTop - rect1.offsetTop <= rect1.offsetHeight
+				} else {
+					// obj1在obj2的左上角原点下方
+					y_conflict = rect1.offsetTop - rect2.offsetTop <= rect2.offsetHeight
+				}
+				// console.log(x_conflict ,y_conflict)
 				
-				// obj1在obj2的左上角原点下方
-				y_conflict_bottom = rect1.offsetTop - rect2.offsetTop <= rect2.offsetHeight
-				console.log(x_conflict_left , x_conflict_right,y_conflict_top , y_conflict_bottom)
-				return (x_conflict_left || x_conflict_right) && (y_conflict_top || y_conflict_bottom)
+				return x_conflict && y_conflict
 			}
 			
 			window.onload=function(){
 				document.onkeydown = function(event){
 				  if (event.key in {ArrowLeft:1,ArrowRight:1,ArrowUp:1,ArrowDown:1}){
 						myplane.key=event.key
+				  }
+				  if (event.key == " "){
+				  	    shot()
 				  }
 				}
 				document.onkeyup=function(event){

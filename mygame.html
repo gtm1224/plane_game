@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+		    .container{
+		        position: relative;
+		        margin: 0;
+		        /*padding: 0;*/
+		        width: 400px;
+		        height: 600px;
+		        background: url(image/background.png) repeat-y;
+		    	animation:background-move 10s  linear infinite;
+				overflow: hidden;
+		    }
+		    
+		    @-webkit-keyframes background-move{
+		    	from{background-position: 0 0;}
+		    	to{background-position: 0 852px;}
+		    }
+			
+			.plane{
+			    position: absolute;
+			    left: 0;
+			    top:0;
+			    border: 0px solid #f0f;	    
+			}
+			.hero {
+				width: 100px;
+				height: 122px;
+			}
+			.enemy1{
+				width: 51px;
+				height: 39px;
+			}
+			.bullet {
+				width: 5px;
+				height: 5px;
+			}
+			#start {
+				margin: -webkit-calc(50%)
+			}
+			h2{
+				position:absolute; 
+				left:190px;
+				top:240px;
+				
+			}
+		</style>
+		<script type="text/javascript" src="js/helper.js"></script>
+		<script type="text/javascript" src="js/sprite.js"></script>
+	</head>
+	<body>
+		<h1>发射狗狗币赢比特币</h1>
+		<p>用户名:Tim</p>
+		<p class="btc">BTC:</p>
+	   <div class="container">
+	   	   <input type="image" src="image/game_resume_pressed.png" id="start" />
+		   <h2 class="start_h1" >start</h2>
+        </div>
+	   </div>
+	   <audio src="sound/bgm.mp3"  id="game_music_start" loop="loop">
+	   	口袋妖怪bgm
+	   </audio>
+	    <audio src="sound/bgm_play.mp3"  id="game_music" loop="loop">
+	    	植物大战僵尸bgm
+	    </audio>
+	    <script type="text/javascript">
+	        
+				container = document.querySelector(".container")
+				start_btn = document.querySelector("#start")
+				start_h1 = document.querySelector(".start_h1")
+				game_music_start = document.querySelector("#game_music_start")
+				game_music = document.querySelector("#game_music")
+				btc = document.querySelector(".btc")
+				myplane = null
+				enemy1_array = []
+				enemy1_count = 3
+                bullet_array = []
+				game_music_start.play()
+				var points = 0
+				function init(){
+					
+					myplane = new HeroPlane()
+					for (var i=0;i<enemy1_count;i++){
+						x = getRand(50, 400)
+						y = getRand(0, 100)-100
+						enemy1_array[i] = new Enemy1Plane(x,y)
+					}
+					enemy2 = new Enemy2Plane(x,y)
+					enemy3 = new Enemy3Plane(x,y)
+					
+				}
+				
+				function run(){
+					
+					if (myplane.dead){
+						myplane.remove()
+						myplane = new HeroPlane()
+						points=0
+						btc.innerHTML="BTC:"
+						btc.innerHTML+=" "+points
+					}
+					
+					for (i=0;i<enemy1_count; i++){
+						if (enemy1_array[i].dead){
+							enemy1_array[i].remove()
+							enemy1_array[i] = new Enemy1Plane(x,y)
+							points += 0.0001
+							btc.innerHTML="BTC:"
+							btc.innerHTML+=" "+points.toFixed(4)
+						}
+					}
+					if (enemy2.dead){
+						btc
+						enemy2.remove()
+						enemy2 = new Enemy2Plane(x,y)
+						points+=0.001
+						btc.innerHTML="BTC:"
+						btc.innerHTML+=" "+points.toFixed(3)
+					}
+					if (enemy3.dead){
+						enemy3.remove()
+						enemy3 = new Enemy3Plane(x,y)
+						points += 0.05
+						btc.innerHTML="BTC:"
+						btc.innerHTML+=" "+points.toFixed(2)
+					}
+					for (i=0;i<bullet_array.length; i++){
+						if (bullet_array[i].dead){
+							bullet_array[i].remove()
+							bullet_array[i] = null
+							bullet_array.splice(i,1)
+						}
+					}
+
+					myplane.fly()
+					
+					enemy1_array.forEach(function(obj){
+						obj.fly()
+						
+						if (obj.dead){
+							obj.remove()
+						}
+						if (isConflict(obj, myplane)){
+							obj.life -= 1
+							myplane.life -= 1
+						}
+						})
+						
+					
+					  function enemy(obj){
+						obj.fly()
+						
+						if (obj.dead){
+							obj.remove()
+						}
+						if (isConflict(obj, myplane)){
+							obj.life -= 1
+							myplane.life -= 1
+						}
+						}
+					enemy(enemy2)
+					enemy(enemy3)
+					bullet_array.forEach(function(bullet, index, bullet_array){
+							bullet.fly()
+							enemy1_array.forEach(function(enemy){
+								if (isConflict(bullet, enemy)){
+									bullet.life -= 1
+									enemy.life -= 1
+								}
+							})
+							if(isConflict(bullet,enemy2)){
+								bullet.life -=1
+								enemy2.life-=1
+							}
+							if(isConflict(bullet,enemy3)){
+								bullet.life -=1
+								enemy3.life-=1
+							}
+						})
+						
+					setTimeout(run,30)
+					
+				}
+				
+				function shot(){
+					
+					bullet = new Bullet(myplane.div.offsetLeft+myplane.div.offsetWidth/2,
+					                    myplane.div.offsetTop
+					                   )
+				 
+					bullet_array.push(bullet)
+					
+				}
+				
+				
+				function play(){
+					init()
+					run()
+	    	    }
+				
+				  
+				window.onload=function(){
+					document.onkeydown = function(event){
+					  if (event.key in {ArrowLeft:1,ArrowRight:1,ArrowUp:1,ArrowDown:1}){
+							myplane.key=event.key
+					  }
+					  if (event.key == " "){
+						  shot()
+					  }
+					}
+					document.onkeyup=function(event){
+					  if (event.key in {ArrowLeft:1,ArrowRight:1,ArrowUp:1,ArrowDown:1}){
+							myplane.key=""
+					  }
+					}
+					
+					start_btn.onclick = function(){
+						this.style.display = "none"
+						game_music.play()
+						game_music_start.pause()
+						start_h1.remove()
+						play()   
+						
+					}
+				}
+	    </script>
+	</body>
+</html>

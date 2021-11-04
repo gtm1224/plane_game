@@ -69,7 +69,7 @@
 						first_frame : 0,
 						last_frame : 1,
 						current_frame : 0,
-						speed : 3,
+						speed : 10,
 						life: 10,
 						dead:false
 						}
@@ -135,7 +135,76 @@
 						}
 					
 				}
+				// 敌机2构造函数
+				function Enemy2Plane(x,y){
+					
+					init_data = {
+						x: getRand(50, 400),
+						y: getRand(0, 100)-400, 
+						className:"plane enemy2",
+						path : "image/enemy2/",
+						image_files : ["enemy2.png","enemy2_down1.png","enemy2_down2.png","enemy2_down3.png","enemy2_down4.png"],
+						first_frame : 0,
+						last_frame : 0,
+						current_frame : 0,
+						speed : 5,
+						life: 3,
+						dead: false
+						}
+					Enemy2Plane.prototype.constructor.call(this, init_data)
+					this.init()
+					this.load()
 				
+				}
+				
+				
+				Enemy2Plane.prototype = new Sprite()
+				
+				Enemy2Plane.prototype.fly = function(){
+				        // console.log(this.div.offsetTop , this.speed )
+						this.movies()
+						this.div.style.top = (this.div.offsetTop + this.speed )+ "px"		
+					    if (this.div.offsetTop > container.clientHeight){
+							this.div.style.top = "-20px"
+						}
+					
+				}
+				
+				
+				// 敌机3构造函数
+				function Enemy3Plane(x,y){
+					
+					init_data = {
+						x: getRand(50, 400),
+						y: getRand(0, 100)-400, 
+						className:"plane enemy3",
+						path : "image/enemy3/",
+						image_files : ["enemy3_n1.png","enemy3_down1.png","enemy3_down2.png","enemy3_down3.png","enemy3_down4.png"],
+						first_frame : 0,
+						last_frame : 0,
+						current_frame : 0,
+						speed : 5,
+						life: 5,
+						dead: false
+						}
+					Enemy3Plane.prototype.constructor.call(this, init_data)
+					this.init()
+					this.load()
+				
+				}
+				
+				
+				Enemy3Plane.prototype = new Sprite()
+				
+				Enemy3Plane.prototype.fly = function(){
+				        // console.log(this.div.offsetTop , this.speed )
+						this.movies()
+						this.div.style.top = (this.div.offsetTop + this.speed )+ "px"		
+					    if (this.div.offsetTop > container.clientHeight){
+							this.div.style.top = "-20px"
+						}
+					
+				}
 				//子弹构造函数
 				function Bullet(x,y){
 					init_data = {
@@ -143,7 +212,7 @@
 						y: y, 
 						className:"plane bullet",
 						path : "image/bullet/",
-						image_files : ["bullet1.png","bullet2.png"],
+						image_files : ["doge_3.jpg","doge_3.jpg"],
 						first_frame : 0,
 						last_frame : 1,
 						current_frame : 0,
